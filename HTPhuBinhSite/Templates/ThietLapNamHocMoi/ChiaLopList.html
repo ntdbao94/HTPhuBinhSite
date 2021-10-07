@@ -1,0 +1,127 @@
+{% extends 'HomePage/Base.html' %}
+{% load static %}
+{% block cssblock %}<!-- Custom fonts for this template -->
+    <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this page -->
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block contentblock %}
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-2 text-gray-800">Chia lớp - phân công cho năm học {{currentNienKhoa.NamBatDau}} - {{currentNienKhoa.NamKetThuc}}</h1>
+                    <a href="{% url 'ThietLapNamHocMoi:syncchialop' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"  data-toggle="modal" data-target="#syncModal">
+                        <i class="fas fa-download fa-sm text-white-50"></i>Tự động tạo lớp học</a>
+                    </div>
+                    <div class="modal fade" id="syncModal" tabindex="-1" role="dialog" aria-labelledby="syncModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="esyncModalLabel">Bạn muốn tự động tạo lớp học cho năm học {{currentNienKhoa.NamBatDau}} - {{currentNienKhoa.NamKetThuc}}?</h5>
+                                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">Chọn "Xác nhận" bên dưới nếu bạn muốn tự động tạo lớp học.</div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Hủy bỏ</button>
+                                    <a class="btn btn-primary" href="{% url 'ThietLapNamHocMoi:syncchialop' %}">Xác nhận</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mb-4">Trang để xem, sửa phân công cho năm học {{currentNienKhoa.NamBatDau}} - {{currentNienKhoa.NamKetThuc}}</p>
+                    {% if list is None %}
+                    <p class="mb-4 text-danger">Không có dữ liệu.</p>
+                    {% else %}
+                    <!-- DataTales Example -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Chia lớp - phân công</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Niên khóa</th>
+                                            <th>Tên lớp</th>
+                                            <th>Chi đoàn trưởng</th>
+                                            <th>Danh sách HT</th>
+                                            <th>Đang sử dụng</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th></th>
+                                            <th>Niên khóa</th>
+                                            <th>Tên lớp</th>
+                                            <th>Chi đoàn trưởng</th>
+                                            <th>Danh sách HT</th>
+                                            <th>Đang sử dụng</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                    {% for item in list %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'ThietLapNamHocMoi:updatechialop' item.id_ChiaLop%}" class="btn btn-info btn-circle btn-sm">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </a>
+                                            </td>
+                                            <td>{{item.DanhMucNienKhoa.NamBatDau}} - {{item.DanhMucNienKhoa.NamKetThuc}}</td>
+                                            <td>{{item.DanhMucLop.TenLop}}</td>
+                                            <td>{{item.ChiDoanTruong.last_name}} {{item.ChiDoanTruong.first_name}}</td>
+                                            <td>
+                                                {% for ht in item.DanhSachHuynhTruong.all %}
+                                                <li>{{ht}}</li>
+                                                {% endfor %}
+                                            </td>
+                                            <td>
+                                                <input type="checkbox" disabled {% if item.Is_Active == 1 %} checked {% endif %}>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- /.container-fluid -->
+
+{% endblock %}
+
+
+
+{% block jsblock %}
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+
+    <!-- Page level plugins -->
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="{% static 'js/demo/datatables-demo.js' %}"></script>
+{% endblock %}

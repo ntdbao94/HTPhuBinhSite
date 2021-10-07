@@ -1,0 +1,93 @@
+{% extends 'HomePage/Base.html' %}
+{% load static %}
+{% block cssblock %}<!-- Custom fonts for this template -->
+    <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this page -->
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block contentblock %}
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-2 text-gray-800">Danh mục niên khóa</h1>
+                    <p class="mb-4">Trang để xem, sửa, xóa và thêm năm học mới.</p>
+                    <form class="user" action="{% if Old_id_DanhMucNienKhoa is None %} {% url 'ThietLapNamHocMoi:createnienkhoa' %} {% else %} {% url 'ThietLapNamHocMoi:updatenienkhoa' Old_id_DanhMucNienKhoa %} {% endif %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                Năm bắt đầu:{{form.NamBatDau}}
+                                {% for err in form.NamBatDau.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                Năm kết thúc:{{form.NamKetThuc}}
+                                {% for err in form.NamKetThuc.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            Chủ đề năm học:{{form.ChuDeNamHoc}}
+                                {% for err in form.ChuDeNamHoc.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                        </div>
+                        <div class="form-group">
+                            Bài hát chủ đề:{{form.BaiHatChuDe}}
+                                {% for err in form.BaiHatChuDe.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                        </div>
+                        <div class="form-group">
+                            Khẩu hiệu năm học:{{form.KhauHieuNamHoc}}
+                                {% for err in form.KhauHieuNamHoc.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-6">
+                                Trạng thái:{{form.Is_Active}}
+                                {% for err in form.Is_Active.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <input type="hidden" value="{{Old_id_DanhMucNienKhoa}}" name="Old_id_DanhMucNienKhoa">
+                        <input type="submit" href="login.html" class="btn btn-primary btn-user btn-block" value="Lưu lại"/>
+                    </form>
+                </div>
+                <!-- /.container-fluid -->
+
+{% endblock %}
+
+
+
+{% block jsblock %}
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{% static 'js/sb-admin-2.min.js"></script>
+
+    <!-- Page level plugins -->
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="{% static 'js/demo/datatables-demo.js' %}"></script>
+{% endblock %}

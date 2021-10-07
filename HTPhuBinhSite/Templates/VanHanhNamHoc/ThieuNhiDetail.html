@@ -1,0 +1,171 @@
+{% extends 'HomePage/Base.html' %}
+{% load static %}
+{% block cssblock %}<!-- Custom fonts for this template -->
+    <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this page -->
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+    <!-- Custom styles for this page -->
+    <link href="{% static 'css/jquery-ui.min.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block contentblock %}
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-2 text-gray-800">Thông tin thiếu nhi</h1>
+                    <p class="mb-4">Trang để xem, sửa, xóa và thêm thông tin thiếu nhi.</p>
+                    <form class="user" id="InputForm" action="{% if Old_id_ThieuNhi is None %} {% url 'VanHanhNamHoc:createthieunhi' %} {% else %} {% url 'VanHanhNamHoc:updatethieunhi' Old_id_ThieuNhi %} {% endif %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                Tên Thánh:{{form.TenThanh}}
+                                {% for err in form.TenThanh.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                Họ và tên:{{form.HoTen}}
+                                {% for err in form.HoTen.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                Ngày Sinh:{{form.NgaySinh}}
+                                {% for err in form.NgaySinh.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                Ngày rửa tội:{{form.NgayRuaToi}}
+                                {% for err in form.NgayRuaToi.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                Tên Thánh cha:{{form.TenThanhCha}}
+                                {% for err in form.TenThanhCha.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                Họ và tên cha:{{form.HoTenCha}}
+                                {% for err in form.HoTenCha.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                Tên Thánh mẹ:{{form.TenThanhMe}}
+                                {% for err in form.TenThanhMe.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                Họ và tên mẹ:{{form.HoTenMe}}
+                                {% for err in form.HoTenMe.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                Địa chỉ:{{form.DiaChi}}
+                                {% for err in form.DiaChi.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                Khu đạo:{{form.KhuDao}}
+                                {% for err in form.KhuDao.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                SĐT1:{{form.Sdt1}}
+                                {% for err in form.Sdt1.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                SĐT2:{{form.Sdt2}}
+                                {% for err in form.Sdt2.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-6">
+                                Trạng thái:{{form.Is_Active}}
+                                {% for err in form.Is_Active.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <input type="hidden" value="{{Old_id_ThieuNhi}}" name="Old_id_ThieuNhi">
+                        <input type="submit" href="login.html" class="btn btn-primary btn-user btn-block" value="Lưu lại"/>
+                    </form>
+                </div>
+
+{% endblock %}
+
+
+
+{% block jsblock %}
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+
+    <!-- Page level plugins -->
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="{% static 'js/demo/datatables-demo.js' %}"></script>
+
+    <script src="{% static 'js/jquery-ui.js' %}"></script>
+<script>
+$(document).ready(function(){
+    parts = $("#id_NgaySinh").val().split("-")
+    if(parts[1] && parts[2]) {
+        $("#id_NgaySinh").val(parts[2]+"/"+parts[1]+"/"+parts[0])
+    }
+    parts = $("#id_NgayRuaToi").val().split("-")
+    if(parts[1] && parts[2]) {
+        $("#id_NgayRuaToi").val(parts[2]+"/"+parts[1]+"/"+parts[0])
+    }
+    $("#id_NgaySinh, #id_NgayRuaToi").datepicker({
+    });
+});
+$("#InputForm").submit(function(){
+   parts = $("#id_NgaySinh").val().split("/");
+    if(parts[1] && parts[2]) {
+        $("#id_NgaySinh").val(parts[1]+"/"+parts[0]+"/"+parts[2])
+    };
+    parts = $("#id_NgayRuaToi").val().split("/");
+    if(parts[1] && parts[2]) {
+        $("#id_NgayRuaToi").val(parts[1]+"/"+parts[0]+"/"+parts[2])
+    };
+})
+</script>
+{% endblock %}
