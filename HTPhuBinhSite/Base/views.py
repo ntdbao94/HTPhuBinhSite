@@ -4,7 +4,7 @@ from django.views import View
 from ThietLapNamHocMoi.models import HuynhTruong
 from django.contrib.auth import authenticate, logout, login
 from django.urls import reverse
-from .forms import RegistrationForm
+from .forms import RegistrationForm, UpdateHTForm, UpdateLoginInfoForm
 
 # Create your views here.
 class LoginView(View):
@@ -42,3 +42,27 @@ class HomePageView(LoginRequiredMixin,View):
     login_url = '/logout/'
     def get(self, request):
         return render(request, 'HomePage/index.html')
+
+class UpdateHT(LoginRequiredMixin,View):
+    login_url = '/logout/'
+    def get(self, request):
+        form = UpdateHTForm(instance=request.user, request=request)
+        form2 = UpdateLoginInfoForm(request=request)
+        return render(request, 'HomePage/CapNhatHuynhTruong.html', {'form': form, 'form2': form2})
+    def post(self, request):
+        form = UpdateHTForm(request.POST, request.FILES, instance=request.user, request=request)
+        form2 = UpdateLoginInfoForm(request=request)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('Base:dashboard'))
+        return render(request, 'HomePage/CapNhatHuynhTruong.html', {'form': form, 'form2': form2})
+    def UpdateLoginInfo(request):
+        form = UpdateHTForm(instance=request.user, request=request)
+        form2 = UpdateLoginInfoForm(request.POST, request=request)
+        if form2.is_valid():
+            objHuynhTruong = HuynhTruong.objects.get(pk=request.user.id_HuynhTruong)
+            objHuynhTruong.username = form2.cleaned_data['username']
+            objHuynhTruong.set_password(form2.cleaned_data['password'])
+            objHuynhTruong.save()
+            return redirect(reverse('Base:dashboard'))
+        return render(request, 'HomePage/CapNhatHuynhTruong.html', {'form': form, 'form2': form2})
