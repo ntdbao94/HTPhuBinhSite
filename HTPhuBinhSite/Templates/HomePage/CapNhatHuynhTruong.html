@@ -1,0 +1,182 @@
+{% extends 'HomePage/Base.html' %}
+{% load static %}
+{% block cssblock %}<!-- Custom fonts for this template -->
+    <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this page -->
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+    <!-- Custom styles for this page -->
+    <link href="{% static 'css/jquery-ui.min.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block contentblock %}
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <!-- Page Heading -->
+                    <h2 class="h3 mb-2 text-gray-800">Cập nhật thông tin cá nhân</h2>
+                    <form class="user" id="InputForm" action="{% url 'Base:capnhatthongtinHT' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <img src="{% static 'Uploads/' %}{{request.user.avatar.name}}" width="200px">
+                        <div class="form-group row">
+                            <div class="col-sm-6" style="bottom: 0px;">
+                                Tên Thánh:{{form.TenThanh}}
+                                {% for err in form.TenThanh.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                <p>
+                                    {{form.avatar}}
+                                    {% for err in form.avatar.errors %}
+                                        <p class="mb-4 text-danger">{{err}}.</p>
+                                    {% endfor %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                Họ và tên lót:{{form.last_name}}
+                                {% for err in form.last_name.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                Tên:{{form.first_name}}
+                                {% for err in form.first_name.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                Ngày Sinh:{{form.NgaySinh}}
+                                {% for err in form.NgaySinh.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                Ngày bổn mạng:{{form.NgayBonMang}}
+                                {% for err in form.NgayBonMang.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm">
+                                Địa chỉ:{{form.DiaChi}}
+                                {% for err in form.DiaChi.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                SĐT1:{{form.Sdt1}}
+                                {% for err in form.Sdt1.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                SĐT2:{{form.Sdt2}}
+                                {% for err in form.Sdt2.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                Email liên lạc:{{form.email}}
+                                {% for err in form.email.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <input type="hidden" value="{{Old_id_ThieuNhi}}" name="Old_id_ThieuNhi">
+                        <input type="submit" for="InputForm" class="btn btn-primary btn-user btn-block" value="Lưu lại thông tin cá nhân"/>
+                    </form>
+                    </br>
+                    <h2 class="h3 mb-2 text-gray-800">Cập nhật thông tin đăng nhập</h2>
+
+                    <form class="user" id="InputForm2" action="{% url 'Base:capnhatthongtinLogin' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group row">
+                            <div class="col-sm">
+                                Tên đăng nhập:{{form2.username}}
+                                {% for err in form2.username.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                Mật khẩu:{{form2.password}}
+                                {% for err in form2.password.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                Nhập lại mật khẩu:{{form2.rpassword}}
+                                {% for err in form2.rpassword.errors %}
+                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <input type="submit" for="InputForm2" class="btn btn-primary btn-user btn-block" value="Lưu lại thông đăng nhập"/>
+                    </form>
+                </div>
+
+{% endblock %}
+
+
+
+{% block jsblock %}
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+
+    <!-- Page level plugins -->
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="{% static 'js/demo/datatables-demo.js' %}"></script>
+
+    <script src="{% static 'js/jquery-ui.js' %}"></script>
+<script>
+$(document).ready(function(){
+    parts = $("#id_NgaySinh").val().split("-")
+    if(parts[1] && parts[2]) {
+        $("#id_NgaySinh").val(parts[2]+"/"+parts[1]+"/"+parts[0])
+    }
+    parts = $("#id_NgayBonMang").val().split("-")
+    if(parts[1] && parts[2]) {
+        $("#id_NgayBonMang").val(parts[2]+"/"+parts[1]+"/"+parts[0])
+    }
+    $("#id_NgaySinh, #id_NgayBonMang").datepicker({
+    });
+});
+$("#InputForm").submit(function(){
+   parts = $("#id_NgaySinh").val().split("/");
+    if(parts[1] && parts[2]) {
+        $("#id_NgaySinh").val(parts[1]+"/"+parts[0]+"/"+parts[2])
+    };
+    parts = $("#id_NgayBonMang").val().split("/");
+    if(parts[1] && parts[2]) {
+        $("#id_NgayBonMang").val(parts[1]+"/"+parts[0]+"/"+parts[2])
+    };
+})
+</script>
+{% endblock %}
