@@ -14,7 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-from Base.views import HomePageView, LoginView, RegistView
+from Base.views import HomePageView, LoginView, RegistView, UpdateHT
+
+from django.conf import settings
+from django.conf.urls.static import static
 
 app_name = "Base"
 urlpatterns = [
@@ -22,4 +25,9 @@ urlpatterns = [
     path('regist/', RegistView.as_view(), name="regist"),
     path('logout/', LoginView.logout, name="logout"),
     path('dashboard/', HomePageView.as_view(), name="dashboard"),
+    path('UpdateHT/', UpdateHT.as_view(), name="capnhatthongtinHT"),
+    path('UpdateLogin/', UpdateHT.UpdateLoginInfo, name="capnhatthongtinLogin"),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

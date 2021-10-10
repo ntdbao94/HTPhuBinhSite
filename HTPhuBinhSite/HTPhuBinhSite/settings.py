@@ -181,6 +181,7 @@ STATICFILES_DIRS = [
 
 AUTH_USER_MODEL = 'ThietLapNamHocMoi.HuynhTruong'
 MEDIA_ROOT = '%s/Static/HomePage/Uploads/' %BASE_DIR
+MEDIA_URL = '/Uploads/'
 CKEDITOR_UPLOAD_PATH = '.'
 ROOT_URLCONF = 'HTPhuBinhSite.urls'
 
