@@ -23,6 +23,7 @@ urlpatterns = [
     path('detailThieuNhi/<int:id_ThieuNhi>', views.ThieuNhiView.update, name="updatethieunhi"),
     path('detailThieuNhi/', views.ThieuNhiView.create, name="createthieunhi"),
     path('deleteThieuNhi/<int:id_ThieuNhi>', views.ThieuNhiView.delete, name="deletethieunhi"),
+    path('uploadThieuNhi/', views.ThieuNhiView.upload, name="uploadthieunhi"),
 
     path('viewBangDiem/', views.BangDiemView.as_view(), name="bangdiem"),
     path('detailBangDiem/<int:id_BangDiem>', views.BangDiemView.update1row, name="updatebangdiem"),
