@@ -9,11 +9,11 @@ class RegistrationForm(forms.ModelForm):
         fields = ['TenThanh', 'last_name', 'email', 'password']
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)
-        self.fields['TenThanh'].widget.attrs.update({'class' : 'form-control form-control-user', 'placeholder': 'Tên Thánh...'})
-        self.fields['last_name'].widget.attrs.update({'class' : 'form-control form-control-user', 'placeholder': 'Họ và tên...'})
-        self.fields['email'].widget.attrs.update({'class' : 'form-control form-control-user', 'placeholder': 'Email...'})
-        self.fields['password'].widget.attrs.update({'class' : 'form-control form-control-user', 'placeholder': 'Mật khẩu...'})
-        self.fields['rpassword'].widget.attrs.update({'class' : 'form-control form-control-user', 'placeholder': 'Nhập lại mật khẩu...'})
+        self.fields['TenThanh'].widget.attrs.update({'class': 'form-control form-control-user', 'placeholder': 'Tên Thánh...'})
+        self.fields['last_name'].widget.attrs.update({'class': 'form-control form-control-user', 'placeholder': 'Họ và tên...'})
+        self.fields['email'].widget.attrs.update({'class': 'form-control form-control-user', 'placeholder': 'Email...'})
+        self.fields['password'].widget.attrs.update({'class': 'form-control form-control-user', 'placeholder': 'Mật khẩu...'})
+        self.fields['rpassword'].widget.attrs.update({'class': 'form-control form-control-user', 'placeholder': 'Nhập lại mật khẩu...'})
 
     def clean(self):
         cleaned_data = super().clean()

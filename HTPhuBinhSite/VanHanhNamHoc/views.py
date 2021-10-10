@@ -6,6 +6,9 @@ from ThietLapNamHocMoi.apps import ThietlapnamhocmoiConfig as VanhanhnamhocConfi
 from ThietLapNamHocMoi.models import ThieuNhi, BangDiem, ChiaLop, PhanCong, DiemDanh
 from .forms import ThieuNhiForm, BangDiemForm, DiemDanhForm
 import pandas, datetime
+from .resources import ThieuNhiResource
+from tablib import Dataset
+from django.contrib import messages
 
 def Check_HuynhTruong_quan_ly_ThieuNhi(id_ThieuNhi, id_HuynhTruong):
     return ChiaLop.objects.filter(DanhMucNienKhoa__Is_Active=1, DanhSachHuynhTruong__id_HuynhTruong=id_HuynhTruong, BangDiemThieuNhi__id_ThieuNhi=id_ThieuNhi).exists()
@@ -64,6 +67,22 @@ class ThieuNhiView(LoginRequiredMixin, View):
             return redirect(reverse('VanHanhNamHoc:thieunhi'))
         return render(request, 'HomePage/404.html')
 
+    def upload(request):
+        if request.user.has_perm(VanhanhnamhocConfig.name + '.add_thieunhi'):
+            if request.method == 'POST':
+                thieunhiResouce = ThieuNhiResource()
+                dataset = Dataset()
+                new_ThieuNhi = request.FILES['UploadFile']
+
+                if not new_ThieuNhi.name.endswith('xlsx'):
+                    messages.info(request, 'Sai định dạng file, vui lòng chọn file .xlsx')
+                else:
+                    imported_data = dataset.load(new_ThieuNhi.read(), format='xlsx')
+                    for data in imported_data:
+                        print(data)
+                        thieunhiResouce.import_data(dataset)
+                return ThieuNhiView.get(ThieuNhiView, request)
+        return render(request, 'HomePage/404.html')
 
 class BangDiemView(LoginRequiredMixin, View):
     login_url = '/logout/'
@@ -89,6 +108,7 @@ class BangDiemView(LoginRequiredMixin, View):
             return redirect(reverse('VanHanhNamHoc:bangdiem'))
         else:
             return render(request, 'HomePage/404.html')
+
 
 class DiemDanhView(LoginRequiredMixin, View):
     login_url = '/logout/'

@@ -24,13 +24,21 @@
                             class="fas fa-download fa-sm text-white-50"></i> Thêm mới</a>
                     </div>
                     <p class="mb-4">Trang để xem, sửa, xóa và thêm thiếu nhi.</p>
+                    {% for message in messages %}
+                        <p class="mb-4 text-danger" role="alert">{{message}}</p>
+                    {% endfor %}
                     {% if list is None %}
-                    <p class="mb-4 text-danger">Không có dữ liệu.</p>
+                        <p class="mb-4 text-danger">Không có dữ liệu.</p>
                     {% else %}
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Thông tin thiếu nhi</h6>
+                            <form method="post" action="{% url 'VanHanhNamHoc:uploadthieunhi' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="file" required name="UploadFile">
+                                <input type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" value="Upload dữ liệu từ excel">
+                            </form>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">

@@ -77,6 +77,8 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'ckeditor',
 
+    'import_export',
+
     'keyboard_shortcuts',
 
     'Base.apps.BaseConfig',
