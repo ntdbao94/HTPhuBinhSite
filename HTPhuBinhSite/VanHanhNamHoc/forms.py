@@ -1,5 +1,6 @@
 from django import forms
 from ThietLapNamHocMoi.models import ThieuNhi, BangDiem, DiemDanh
+from django.contrib import messages
 
 class ThieuNhiForm(forms.ModelForm):
     class Meta:
@@ -34,6 +35,10 @@ class ThieuNhiForm(forms.ModelForm):
         self.cleaned_data['DiaChi'] = self.cleaned_data['DiaChi'].title().strip()
         self.cleaned_data['KhuDao'] = self.cleaned_data['KhuDao'].title().strip()
         self.cleaned_data['Updated_by'] = self.request.user
+        print(self.cleaned_data['HoTen'] == 'Lại Là Bảo Đây')
+        if ThieuNhi.objects.filter(TenThanh=self.cleaned_data['TenThanh'], HoTen=self.cleaned_data['HoTen'], NgaySinh=self.cleaned_data['NgaySinh'], Is_Active=-1).exists():
+            messages.info(self.request, 'Thiếu nhi: ' + self.cleaned_data['TenThanh'] + ' ' + self.cleaned_data['HoTen'] + ' đã nghỉ học trước đó, vui lòng liên hệ BQT để kiểm tra tình hình học tập.')
+            self.add_error('HoTen', '')
 
 class BangDiemForm(forms.ModelForm):
     class Meta:

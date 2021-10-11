@@ -9,6 +9,7 @@ import pandas, datetime
 from .resources import ThieuNhiResource
 from tablib import Dataset
 from django.contrib import messages
+from django.core import serializers
 
 def Check_HuynhTruong_quan_ly_ThieuNhi(id_ThieuNhi, id_HuynhTruong):
     return ChiaLop.objects.filter(DanhMucNienKhoa__Is_Active=1, DanhSachHuynhTruong__id_HuynhTruong=id_HuynhTruong, BangDiemThieuNhi__id_ThieuNhi=id_ThieuNhi).exists()
@@ -28,9 +29,7 @@ class ThieuNhiView(LoginRequiredMixin, View):
             if request.method == 'POST':
                 form = ThieuNhiForm(request.POST, request=request)
                 if form.is_valid():
-                    savedObj = form.save(commit=False)
-                    savedObj.Updated_by = request.user
-                    savedObj.save()
+                    savedObj = form.save()
                     objBangDiem = BangDiem.objects.get_or_create(ChiaLop=request.user.CacLopDaDay.get(DanhMucNienKhoa__Is_Active=1, Is_Active=1), ThieuNhi=savedObj)
                     objBangDiem[0].Is_Active = savedObj.Is_Active
                     objBangDiem[0].Updated_by = request.user
@@ -43,20 +42,18 @@ class ThieuNhiView(LoginRequiredMixin, View):
 
     def update(request, id_ThieuNhi):
         if request.user.has_perm(VanhanhnamhocConfig.name + '.change_thieunhi') & Check_HuynhTruong_quan_ly_ThieuNhi(id_ThieuNhi=id_ThieuNhi, id_HuynhTruong=request.user.id_HuynhTruong):
-            thieunhi = ThieuNhi.objects.get(pk=id_ThieuNhi)
+            objThieuNhi = ThieuNhi.objects.get(pk=id_ThieuNhi)
             if request.method == 'POST':
-                form = ThieuNhiForm(request.POST, instance=thieunhi, request=request)
+                form = ThieuNhiForm(request.POST, instance=objThieuNhi, request=request)
                 if form.is_valid():
-                    savedObj = form.save(commit=False)
-                    savedObj.Updated_by = request.user
-                    savedObj.save()
+                    savedObj = form.save()
                     objBangDiem = BangDiem.objects.get_or_create(ChiaLop=request.user.CacLopDaDay.get(DanhMucNienKhoa__Is_Active=1, Is_Active=1), ThieuNhi=savedObj)
                     objBangDiem[0].Is_Active = savedObj.Is_Active
                     objBangDiem[0].Updated_by = request.user
                     objBangDiem[0].save()
                     return redirect(reverse('VanHanhNamHoc:thieunhi'))
             else:
-                form = ThieuNhiForm(instance=thieunhi)
+                form = ThieuNhiForm(instance=objThieuNhi)
             return render(request, 'VanHanhNamHoc/ThieuNhiDetail.html', {"form": form, "Old_id_ThieuNhi": id_ThieuNhi})
         return render(request, 'HomePage/404.html')
 
@@ -68,9 +65,8 @@ class ThieuNhiView(LoginRequiredMixin, View):
         return render(request, 'HomePage/404.html')
 
     def upload(request):
-        if request.user.has_perm(VanhanhnamhocConfig.name + '.add_thieunhi'):
+        if request.user.has_perm(VanhanhnamhocConfig.name + '.add_thieunhi') & request.user.has_perm(VanhanhnamhocConfig.name + '.change_thieunhi'):
             if request.method == 'POST':
-                thieunhiResouce = ThieuNhiResource()
                 dataset = Dataset()
                 new_ThieuNhi = request.FILES['UploadFile']
 
@@ -78,9 +74,33 @@ class ThieuNhiView(LoginRequiredMixin, View):
                     messages.info(request, 'Sai định dạng file, vui lòng chọn file .xlsx')
                 else:
                     imported_data = dataset.load(new_ThieuNhi.read(), format='xlsx')
-                    for data in imported_data:
-                        print(data)
-                        thieunhiResouce.import_data(dataset)
+                    for inx, data in enumerate(imported_data):
+                        if str(data[1]).isnumeric():
+                            try:
+                                if data[5] is not None:
+                                    datetime.datetime.strptime(str(data[5])[0:10], '%Y-%m-%d')
+                                if data[4] is not None:
+                                    datetime.datetime.strptime(str(data[4])[0:10], '%Y-%m-%d')
+                            except:
+                                messages.info(request, 'Sai định dạng ngày tháng tại dòng ' + str(inx + 2) + ', em: ' + data[2] + ' ' + data[3] + ', vui lòng sửa đúng định dạng ngày tháng và import lại')
+                                break
+
+                            if ThieuNhi.objects.filter(TenThanh=data[2].title(), HoTen=data[3].title(), NgaySinh= str(data[4])[0:10]).exists():
+                                objThieuNhi = ThieuNhi.objects.get(TenThanh=data[2].title().strip(), HoTen=data[3].title().strip(), NgaySinh= str(data[4])[0:10])
+                            else:
+                                objThieuNhi = ThieuNhi()
+
+                            data = {'TenThanh': data[2], 'HoTen': data[3], 'NgaySinh': str(data[4])[0:10], 'NgayRuaToi': str(data[5])[0:10],
+                                    'HoTenCha': data[6], 'HoTenMe': data[7], 'DiaChi': data[8], 'KhuDao': data[9], 'Sdt1': data[10], 'Is_Active': '1',}
+                            if objThieuNhi.id_ThieuNhi is not None:
+                                data.update({'Is_Active': objThieuNhi.Is_Active})
+                            form = ThieuNhiForm(data, instance=objThieuNhi, request=request)
+                            if form.is_valid():
+                                savedObj = form.save()
+                                objBangDiem = BangDiem.objects.get_or_create(ChiaLop=request.user.CacLopDaDay.get(DanhMucNienKhoa__Is_Active=1, Is_Active=1), ThieuNhi=savedObj)
+                                objBangDiem[0].Is_Active = savedObj.Is_Active
+                                objBangDiem[0].Updated_by = request.user
+                                objBangDiem[0].save()
                 return ThieuNhiView.get(ThieuNhiView, request)
         return render(request, 'HomePage/404.html')
 
@@ -102,9 +122,7 @@ class BangDiemView(LoginRequiredMixin, View):
             form = BangDiemForm(request.POST, instance=objBangDiem, request=request)
             if request.method == 'POST':
                 if form.is_valid():
-                    savedObj = form.save(commit=False)
-                    savedObj.Updated_by = request.user
-                    savedObj.save()
+                    savedObj = form.save()
             return redirect(reverse('VanHanhNamHoc:bangdiem'))
         else:
             return render(request, 'HomePage/404.html')
@@ -160,9 +178,7 @@ class DiemDanhView(LoginRequiredMixin, View):
             form = DiemDanhForm(request.POST, instance=objDiemDanh[0], request=request)
             if request.method == 'POST':
                 if form.is_valid():
-                    savedObj = form.save(commit=False)
-                    savedObj.Updated_by = request.user
-                    savedObj.save()
+                    form.save()
             return redirect(reverse('VanHanhNamHoc:diemdanh'))
         else:
             return render(request, 'HomePage/404.html')
