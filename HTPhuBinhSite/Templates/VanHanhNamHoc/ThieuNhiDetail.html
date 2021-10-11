@@ -21,6 +21,9 @@
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Thông tin thiếu nhi</h1>
                     <p class="mb-4">Trang để xem, sửa, xóa và thêm thông tin thiếu nhi.</p>
+                    {% for message in messages %}
+                        <p class="mb-4 text-danger" role="alert">{{message}}</p>
+                    {% endfor %}
                     <form class="user" id="InputForm" action="{% if Old_id_ThieuNhi is None %} {% url 'VanHanhNamHoc:createthieunhi' %} {% else %} {% url 'VanHanhNamHoc:updatethieunhi' Old_id_ThieuNhi %} {% endif %}" method="post">
                         {% csrf_token %}
                         <div class="form-group row">
@@ -160,11 +163,11 @@ $(document).ready(function(){
 $("#InputForm").submit(function(){
    parts = $("#id_NgaySinh").val().split("/");
     if(parts[1] && parts[2]) {
-        $("#id_NgaySinh").val(parts[1]+"/"+parts[0]+"/"+parts[2])
+        $("#id_NgaySinh").val(parts[2]+"-"+parts[1]+"-"+parts[0])
     };
     parts = $("#id_NgayRuaToi").val().split("/");
     if(parts[1] && parts[2]) {
-        $("#id_NgayRuaToi").val(parts[1]+"/"+parts[0]+"/"+parts[2])
+        $("#id_NgayRuaToi").val(parts[2]+"-"+parts[1]+"-"+parts[0])
     };
 })
 </script>
