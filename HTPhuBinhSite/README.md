@@ -27,8 +27,9 @@ This website helps managing data and stuff relating to catechism class.
 3. Install dependencies
 ``` pip3 install requirements.txt```
 4. Starting MySQL server
-```mysql -u root -p HTPhuBinh```
-References: [MySQL](https://dev.mysql.com/doc/refman/8.0/en/tutorial.html)
+- MacOS: ```mysql.server start```
+- Ubuntu: ```sudo service mysql start```
+- References: [MySQL](https://dev.mysql.com/doc/refman/8.0/en/tutorial.html)
 5. Applying DB changes
 ```python3 manage.py migrate```
 6. Starting the development server
