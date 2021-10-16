@@ -22,7 +22,7 @@ class ThieuNhiForm(forms.ModelForm):
         self.fields['KhuDao'].widget.attrs.update({'class': 'form-control form-control-user', 'placeholder': 'Khu đạo (nếu có)...'})
         self.fields['Sdt1'].widget.attrs.update({'class': 'form-control form-control-user', 'placeholder': 'Sdt1...'})
         self.fields['Sdt2'].widget.attrs.update({'class': 'form-control form-control-user', 'placeholder': 'Sdt2 (nếu có)...'})
-        self.fields['Is_Active'].widget.attrs.update({'class': 'bg-white py-2 collapse-inner rounded'})
+        self.fields['Is_Active'].widget.attrs.update({'class': 'form-control form-control-user bg-white py-2 collapse-inner rounded'})
 
     def clean(self):
         super().clean()
