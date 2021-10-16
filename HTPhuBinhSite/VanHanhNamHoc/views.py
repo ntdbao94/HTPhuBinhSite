@@ -17,44 +17,73 @@ def Check_HuynhTruong_quan_ly_ThieuNhi(id_ThieuNhi, id_HuynhTruong):
 # Create your views here.
 class ThieuNhiView(LoginRequiredMixin, View):
     login_url = '/logout/'
-    def get(self, request):
-        if request.user.has_perm(VanhanhnamhocConfig.name+'.view_thieunhi') & PhanCong.objects.filter(HuynhTruong=request.user, ChiaLop__DanhMucNienKhoa__Is_Active=1).exists():
-            currentPhanCong = PhanCong.objects.filter(HuynhTruong=request.user, ChiaLop__DanhMucNienKhoa__Is_Active=1).select_related('ChiaLop__DanhMucNienKhoa', 'ChiaLop__DanhMucLop')
-            list = ThieuNhi.objects.filter(Is_Active__gte=0,CacLopDaHoc__DanhSachHuynhTruong__id_HuynhTruong=request.user.id_HuynhTruong)
-            return render(request, 'VanHanhNamHoc/ThieuNhiList.html', {"list": list, "currentPhanCong": currentPhanCong})
+
+    def getByChiaLop(request, id_ChiaLop):
+        if request.user.has_perm(VanhanhnamhocConfig.name+'.view_thieunhi') & (PhanCong.objects.filter(HuynhTruong=request.user, ChiaLop__id_ChiaLop=id_ChiaLop).exists() | request.user.groups.filter(name='BQT').exists()):
+            currentChiaLop = ChiaLop.objects.get(pk=id_ChiaLop)
+            list = ThieuNhi.objects.filter(Is_Active__gte=0, CacLopDaHoc=currentChiaLop)
+            if request.user.groups.filter(name='BQT').exists():
+                listChiaLop = ChiaLop.objects.filter(DanhMucNienKhoa__Is_Active=1).order_by('DanhMucLop__DoTuoi, DanhMucLop__id_DanhMucLop')
+            else:
+                listChiaLop = [currentChiaLop]
+            return render(request, 'VanHanhNamHoc/ThieuNhiList.html', {"list": list, "listChiaLop": listChiaLop, "currentChiaLop": currentChiaLop})
         return render(request, 'HomePage/404.html')
+
+    def get(self, request):
+        return ThieuNhiView.getByChiaLop(request, request.user.CacLopDaDay.get(DanhMucNienKhoa__Is_Active=1, Is_Active=1).id_ChiaLop)
 
     def create(request):
         if request.user.has_perm(VanhanhnamhocConfig.name + '.add_thieunhi'):
+            if request.POST.get('ChiaLop') is None:
+                currentChiaLop = request.user.CacLopDaDay.get(DanhMucNienKhoa__Is_Active=1, Is_Active=1)
+            else:
+                currentChiaLop = ChiaLop.objects.get(pk=request.POST.get('ChiaLop'))
+            if request.user.groups.filter(name='BQT').exists():
+                listChiaLop = ChiaLop.objects.filter(DanhMucNienKhoa__Is_Active=1).order_by('DanhMucLop__DoTuoi, DanhMucLop__id_DanhMucLop')
+            else:
+                listChiaLop = [request.user.CacLopDaDay.get(DanhMucNienKhoa__Is_Active=1, Is_Active=1)]
             if request.method == 'POST':
                 form = ThieuNhiForm(request.POST, request=request)
                 if form.is_valid():
-                    savedObj = form.save()
-                    objBangDiem = BangDiem.objects.get_or_create(ChiaLop=request.user.CacLopDaDay.get(DanhMucNienKhoa__Is_Active=1, Is_Active=1), ThieuNhi=savedObj)
-                    objBangDiem[0].Is_Active = savedObj.Is_Active
-                    objBangDiem[0].Updated_by = request.user
-                    objBangDiem[0].save()
-                    return redirect(reverse('VanHanhNamHoc:thieunhi'))
+                    savedObj = form.save(commit=False)
+                    if BangDiem.objects.filter(ThieuNhi=ThieuNhi.objects.filter(TenThanh=form.cleaned_data['TenThanh'], HoTen=form.cleaned_data['HoTen'], NgaySinh= str(form.cleaned_data['NgaySinh'])[0:10]).first(), ChiaLop__DanhMucNienKhoa__Is_Active=1).exclude(ChiaLop__id_ChiaLop=request.POST.get('ChiaLop')).exists():
+                        messages.info(request, 'Em: ' + savedObj.TenThanh + ' ' + savedObj.HoTen + ', hiện đang học ở lớp khác, vui lòng liên hệ BQT để kiểm tra tình hình học tập')
+                    else:
+                        savedObj = form.save()
+                        objBangDiem = BangDiem.objects.get_or_create(ChiaLop=ChiaLop.objects.get(pk=request.POST.get('ChiaLop')), ThieuNhi=savedObj)
+                        objBangDiem[0].Is_Active = savedObj.Is_Active
+                        objBangDiem[0].Updated_by = request.user
+                        objBangDiem[0].save()
+                        return ThieuNhiView.getByChiaLop(request, request.POST.get('ChiaLop'))
             else:
                 form = ThieuNhiForm()
-            return render(request, 'VanHanhNamHoc/ThieuNhiDetail.html', {'form': form})
+            return render(request, 'VanHanhNamHoc/ThieuNhiDetail.html', {'form': form, "listChiaLop": listChiaLop, "currentChiaLop": currentChiaLop})
         return render(request, 'HomePage/404.html')
 
     def update(request, id_ThieuNhi):
-        if request.user.has_perm(VanhanhnamhocConfig.name + '.change_thieunhi') & Check_HuynhTruong_quan_ly_ThieuNhi(id_ThieuNhi=id_ThieuNhi, id_HuynhTruong=request.user.id_HuynhTruong):
+        if request.user.has_perm(VanhanhnamhocConfig.name + '.change_thieunhi') & (Check_HuynhTruong_quan_ly_ThieuNhi(id_ThieuNhi=id_ThieuNhi, id_HuynhTruong=request.user.id_HuynhTruong) | request.user.groups.filter(name='BQT').exists()):
             objThieuNhi = ThieuNhi.objects.get(pk=id_ThieuNhi)
+            if request.POST.get('ChiaLop') is None:
+                currentChiaLop = ThieuNhi.objects.get(pk=id_ThieuNhi).CacLopDaHoc.get(DanhMucNienKhoa__Is_Active=1, Is_Active=1)
+            else:
+                currentChiaLop = ChiaLop.objects.get(pk=request.POST.get('ChiaLop'))
+            if request.user.groups.filter(name='BQT').exists():
+                listChiaLop = ChiaLop.objects.filter(DanhMucNienKhoa__Is_Active=1).order_by('DanhMucLop__DoTuoi, DanhMucLop__id_DanhMucLop')
+            else:
+                listChiaLop = [request.user.CacLopDaDay.get(DanhMucNienKhoa__Is_Active=1, Is_Active=1)]
             if request.method == 'POST':
                 form = ThieuNhiForm(request.POST, instance=objThieuNhi, request=request)
                 if form.is_valid():
                     savedObj = form.save()
-                    objBangDiem = BangDiem.objects.get_or_create(ChiaLop=request.user.CacLopDaDay.get(DanhMucNienKhoa__Is_Active=1, Is_Active=1), ThieuNhi=savedObj)
-                    objBangDiem[0].Is_Active = savedObj.Is_Active
-                    objBangDiem[0].Updated_by = request.user
-                    objBangDiem[0].save()
-                    return redirect(reverse('VanHanhNamHoc:thieunhi'))
+                    objBangDiem = BangDiem.objects.get(ChiaLop__DanhMucNienKhoa__Is_Active=1, ThieuNhi=savedObj)
+                    objBangDiem.ChiaLop = ChiaLop.objects.get(pk=request.POST.get('ChiaLop'))
+                    objBangDiem.Is_Active = savedObj.Is_Active
+                    objBangDiem.Updated_by = request.user
+                    objBangDiem.save()
+                    return ThieuNhiView.getByChiaLop(request, request.POST.get('ChiaLop'))
             else:
                 form = ThieuNhiForm(instance=objThieuNhi)
-            return render(request, 'VanHanhNamHoc/ThieuNhiDetail.html', {"form": form, "Old_id_ThieuNhi": id_ThieuNhi})
+            return render(request, 'VanHanhNamHoc/ThieuNhiDetail.html', {"form": form, "Old_id_ThieuNhi": id_ThieuNhi, "listChiaLop": listChiaLop, "currentChiaLop": currentChiaLop})
         return render(request, 'HomePage/404.html')
 
     def delete(request, id_ThieuNhi):
@@ -96,12 +125,25 @@ class ThieuNhiView(LoginRequiredMixin, View):
                                 data.update({'Is_Active': objThieuNhi.Is_Active})
                             form = ThieuNhiForm(data, instance=objThieuNhi, request=request)
                             if form.is_valid():
-                                savedObj = form.save()
-                                objBangDiem = BangDiem.objects.get_or_create(ChiaLop=request.user.CacLopDaDay.get(DanhMucNienKhoa__Is_Active=1, Is_Active=1), ThieuNhi=savedObj)
-                                objBangDiem[0].Is_Active = savedObj.Is_Active
-                                objBangDiem[0].Updated_by = request.user
-                                objBangDiem[0].save()
-                return ThieuNhiView.get(ThieuNhiView, request)
+                                if BangDiem.objects.filter(ThieuNhi=objThieuNhi, ChiaLop__DanhMucNienKhoa__Is_Active=1).exclude(ChiaLop__id_ChiaLop=request.POST.get('ChiaLop')).exists():
+                                    messages.info(request, 'Tại dòng ' + str(inx + 2) + ', em: ' + objThieuNhi.TenThanh + ' ' + objThieuNhi.HoTen + ', hiện đang học ở lớp khác, vui lòng liên hệ BQT để kiểm tra tình hình học tập')
+                                else:
+                                    savedObj = form.save()
+                                    objBangDiem = BangDiem.objects.get_or_create(ChiaLop=request.POST.get('ChiaLop'), ThieuNhi=savedObj)
+                                    objBangDiem[0].Is_Active = savedObj.Is_Active
+                                    objBangDiem[0].Updated_by = request.user
+                                    objBangDiem[0].save()
+                return ThieuNhiView.getByChiaLop(request, request.POST.get('ChiaLop'))
+        return render(request, 'HomePage/404.html')
+
+    def export(request, id_ChiaLop):
+        if request.user.has_perm(VanhanhnamhocConfig.name+'.view_thieunhi') & (PhanCong.objects.filter(HuynhTruong=request.user, ChiaLop__id_ChiaLop=id_ChiaLop).exists() | request.user.groups.filter(name='BQT').exists()):
+            resourceThieuNhi = ThieuNhiResource()
+            list = ThieuNhi.objects.filter(Is_Active__gte=0, CacLopDaHoc=ChiaLop.objects.get(pk=id_ChiaLop))
+            dataset = resourceThieuNhi.export(list)
+            response = HttpResponse(dataset.xlsx, content_type='application/vnd.ms-excel')
+            response['Content-Disposition'] = 'attachment; filename="DanhSachThieuNhi.xlsx"'
+            return response
         return render(request, 'HomePage/404.html')
 
 class BangDiemView(LoginRequiredMixin, View):
@@ -122,7 +164,7 @@ class BangDiemView(LoginRequiredMixin, View):
             form = BangDiemForm(request.POST, instance=objBangDiem, request=request)
             if request.method == 'POST':
                 if form.is_valid():
-                    savedObj = form.save()
+                    form.save()
             return redirect(reverse('VanHanhNamHoc:bangdiem'))
         else:
             return render(request, 'HomePage/404.html')

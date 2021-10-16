@@ -1,4 +1,5 @@
 {% load static %}
+{% load auth_extras %}
 
             </div>
             <!-- End of Main Content -->
@@ -26,31 +27,32 @@
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Thông tin tổng quát</span></a>
             </li>
+            {% if request.user|has_group:"BQT" %}
+                <!-- Divider -->
+                <hr class="sidebar-divider">
 
-            <!-- Divider -->
-            <hr class="sidebar-divider">
+                <!-- Heading -->
+                <div class="sidebar-heading">
+                    Ban Quản trị
+                </div>
 
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Ban Quản trị
-            </div>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'ThietLapNamHocMoi:nienkhoa' %}">
+                        <i class="fas fa-fw fa-table"></i>
+                        <span>Danh mục <u>n</u>iên khóa</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'ThietLapNamHocMoi:lop' %}">
+                        <i class="fas fa-fw fa-table"></i>
+                        <span>Danh mục lớp</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'ThietLapNamHocMoi:chialop' %}">
+                        <i class="fas fa-fw fa-table"></i>
+                        <span>Chia <u>l</u>ớp</span></a>
+                </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'ThietLapNamHocMoi:nienkhoa' %}">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Danh mục <u>n</u>iên khóa</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'ThietLapNamHocMoi:lop' %}">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Danh mục lớp</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'ThietLapNamHocMoi:chialop' %}">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Chia <u>l</u>ớp</span></a>
-            </li>
-
+            {% endif %}
             <!-- Divider -->
             <hr class="sidebar-divider">
 

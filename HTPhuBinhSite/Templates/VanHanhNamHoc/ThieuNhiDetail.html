@@ -28,6 +28,18 @@
                         {% csrf_token %}
                         <div class="form-group row">
                             <div class="col-sm-6">
+                                <h3><u>Lớp học:</u></h3>
+                                <select name="ChiaLop" class="form-control form-control-user bg-white py-2 collapse-inner rounded" required id="id_ChiaLop">
+                                    {% for iCL in listChiaLop %}
+                                        <option value="{{iCL.id_ChiaLop}}" {% if iCL.id_ChiaLop == currentChiaLop.id_ChiaLop %}selected {% endif %}>
+                                            {{iCL.DanhMucLop.TenLop}}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
                                 Tên Thánh:{{form.TenThanh}}
                                 {% for err in form.TenThanh.errors %}
                                     <p class="mb-4 text-danger">{{err}}.</p>
