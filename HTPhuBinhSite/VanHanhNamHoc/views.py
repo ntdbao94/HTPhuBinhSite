@@ -169,7 +169,6 @@ class BangDiemView(LoginRequiredMixin, View):
         else:
             return render(request, 'HomePage/404.html')
 
-
 class DiemDanhView(LoginRequiredMixin, View):
     login_url = '/logout/'
     def get(self, request):
@@ -197,7 +196,8 @@ class DiemDanhView(LoginRequiredMixin, View):
     def create(request):
         if request.user.has_perm(VanhanhnamhocConfig.name + '.add_diemdanh'):
             currentPhanCong = PhanCong.objects.filter(HuynhTruong=request.user,ChiaLop__DanhMucNienKhoa__Is_Active=1).select_related('ChiaLop__DanhMucNienKhoa', 'ChiaLop__DanhMucLop')
-            return render(request, 'VanHanhNamHoc/DiemDanhDetail.html', {'currentPhanCong': currentPhanCong})
+            list = ThieuNhi.objects.filter(CacLopDaHoc__DanhMucNienKhoa__Is_Active__gte=0, Is_Active=1, CacLopDaHoc__DanhSachHuynhTruong__id_HuynhTruong=request.user.id_HuynhTruong)
+            return render(request, 'VanHanhNamHoc/DiemDanhDetailForMobile.html', {'list': list, 'currentPhanCong': currentPhanCong})
         return render(request, 'HomePage/404.html')
 
     def update(request, year, month, day):
@@ -211,7 +211,7 @@ class DiemDanhView(LoginRequiredMixin, View):
                 for item in listinfo:
                     objDiemDanh = DiemDanh.objects.get_or_create(ChiaLop=item.ChiaLop, ThieuNhi=item.ThieuNhi, NgayDiemDanh= datetime.date(year, month, day))
                     list.append({'info': item, 'form': DiemDanhForm(instance=objDiemDanh[0], request=request)})
-            return render(request, 'VanHanhNamHoc/DiemDanhDetail.html', {"list": list, 'currentPhanCong': currentPhanCong, 'NgayDiemDanh':datetime.date(year, month, day).strftime('%d/%m/%Y')})
+            return render(request, 'VanHanhNamHoc/DiemDanhDetail.html', {'list': list, 'currentPhanCong': currentPhanCong, 'NgayDiemDanh':datetime.date(year, month, day).strftime('%d/%m/%Y')})
         return render(request, 'HomePage/404.html')
 
     def update1row(request, id_ThieuNhi, id_ChiaLop):
@@ -222,5 +222,28 @@ class DiemDanhView(LoginRequiredMixin, View):
                 if form.is_valid():
                     form.save()
             return redirect(reverse('VanHanhNamHoc:diemdanh'))
+        else:
+            return render(request, 'HomePage/404.html')
+
+    def updateForMobile(request):
+        if request.user.has_perm(VanhanhnamhocConfig.name + '.change_diemdanh') & Check_HuynhTruong_quan_ly_ThieuNhi(id_ThieuNhi=request.POST.get('id_ThieuNhi'), id_HuynhTruong=request.user.id_HuynhTruong):
+            if request.method == 'POST':
+                if 'InputFormC' in request.POST:
+                    KetQuaDiemDanh = 'C'
+                if 'InputFormP' in request.POST:
+                    KetQuaDiemDanh = 'P'
+                if 'InputFormV' in request.POST:
+                    KetQuaDiemDanh = 'V'
+                objDiemDanh = DiemDanh.objects.get_or_create(ThieuNhi=ThieuNhi.objects.get(pk=request.POST.get('id_ThieuNhi'))
+                                               , NgayDiemDanh=datetime.datetime.strptime(request.POST.get('NgayDiemDanh'), '%d/%m/%Y')
+                                               , ChiaLop=request.user.CacLopDaDay.get(DanhMucNienKhoa__Is_Active=1))[0]
+                objDiemDanh.KetQuaDiemDanh=KetQuaDiemDanh
+                objDiemDanh.save()
+                list = ThieuNhi.objects.filter(pk__in=(request.POST.get('list') + '0').split(',')).exclude(id_ThieuNhi=request.POST.get('id_ThieuNhi'))
+                if list.exists():
+                    currentPhanCong = PhanCong.objects.filter(HuynhTruong=request.user,ChiaLop__DanhMucNienKhoa__Is_Active=1).select_related('ChiaLop__DanhMucNienKhoa', 'ChiaLop__DanhMucLop')
+                    return render(request, 'VanHanhNamHoc/DiemDanhDetailForMobile.html', {'list': list, 'currentPhanCong': currentPhanCong, 'NgayDiemDanh':request.POST.get('NgayDiemDanh')})
+                else:
+                    return DiemDanhView.get(DiemDanhView(),request)
         else:
             return render(request, 'HomePage/404.html')

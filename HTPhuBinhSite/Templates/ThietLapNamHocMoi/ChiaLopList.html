@@ -20,7 +20,7 @@
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                     <h1 class="h3 mb-2 text-gray-800">Chia lớp - phân công cho năm học {{currentNienKhoa.NamBatDau}} - {{currentNienKhoa.NamKetThuc}}</h1>
-                    <a href="{% url 'ThietLapNamHocMoi:syncchialop' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"  data-toggle="modal" data-target="#syncModal">
+                    <a href="{% url 'ThietLapNamHocMoi:syncchialop' %}" class="d-sm-inline-block btn btn-sm btn-primary shadow-sm"  data-toggle="modal" data-target="#syncModal">
                         <i class="fas fa-check fa-sm text-white-50"></i> Tự động tạo lớp học</a>
                     </div>
                     <div class="modal fade" id="syncModal" tabindex="-1" role="dialog" aria-labelledby="syncModalLabel" aria-hidden="true">
