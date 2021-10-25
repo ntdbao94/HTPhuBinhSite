@@ -32,6 +32,7 @@ urlpatterns = [
 
     path('viewDiemDanh/', views.DiemDanhView.as_view(), name="diemdanh"),
     path('detailDiemDanh/', views.DiemDanhView.create, name="creatediemdanh"),
+    path('detailDiemDanhForMobile/', views.DiemDanhView.updateForMobile, name="updatediemdanhforMobile"),
     path('detailDiemDanh/<int:year>/<int:month>/<int:day>', views.DiemDanhView.update, name="updatediemdanh"),
     path('detailDiemDanh/<int:id_ThieuNhi>/<int:id_ChiaLop>', views.DiemDanhView.update1row, name="updatediemdanh1row"),
 

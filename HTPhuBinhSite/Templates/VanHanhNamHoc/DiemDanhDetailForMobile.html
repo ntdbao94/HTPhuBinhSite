@@ -1,0 +1,90 @@
+{% extends 'HomePage/Base.html' %}
+{% load static %}
+{% block cssblock %}<!-- Custom fonts for this template -->
+    <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this page -->
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+    <!-- Custom styles for this page -->
+    <link href="{% static 'css/jquery-ui.min.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block contentblock %}
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-2 text-gray-800">Điểm danh lớp {{currentPhanCong.0.ChiaLop.DanhMucLop.TenLop}} năm học {{currentPhanCong.0.ChiaLop.DanhMucNienKhoa.NamBatDau}} - {{currentPhanCong.0.ChiaLop.DanhMucNienKhoa.NamKetThuc}}</h1>
+                    </div>
+                    <!-- DataTables Example -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Cập nhật chuyên cần thiếu nhi</h6>
+                        </div>
+
+                        <form class="user" action="{% url 'VanHanhNamHoc:updatediemdanhforMobile' %}" method="post">
+                                    {% csrf_token %}
+                            <div class="col-sm-6">
+                                <h4><u>Ngày điểm danh:</u></h4> <input type="text" id="NgayDiemDanh" name="NgayDiemDanh" required readonly value="{{NgayDiemDanh}}" class="form-control form-control-user"/>
+                                {% if NgayDiemDanh is None%} <p class="mb-4 text-danger" id="errNgayDiemDanh">Vui lòng nhập ngày điểm danh</p>{% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h1>{{list.0.TenThanh}}
+                                {{list.0.HoTen}}</h1>
+                                <input type="hidden" name="id_ThieuNhi" value="{{list.0.id_ThieuNhi}}"/>
+                                <input type="hidden" name="list" value="{% for item in list %}{{item.id_ThieuNhi}},{% endfor %}"/>
+                                <input type="submit" name="InputFormC" class="d-sm-inline-block btn btn-sm btn-success shadow-sm" value="Có mặt"/>
+                                <input type="submit" name="InputFormP" class="d-sm-inline-block btn btn-sm btn-warning shadow-sm" value="Vắng có phép"/>
+                                <input type="submit" name="InputFormV" class="d-sm-inline-block btn btn-sm btn-danger shadow-sm" value="Vắng không phép"/>
+                            </div>
+                            <a href="javascript:history.back()" class="d-sm-inline-block btn btn-sm btn-primary shadow-sm"> back </a>
+                        </form>
+                    </div>
+                </div>
+                <!-- /.container-fluid -->
+
+{% endblock %}
+
+
+
+{% block jsblock %}
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+
+    <!-- Page level plugins -->
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+
+    <script src="{% static 'js/jquery-ui.js' %}"></script>
+<script>
+$(document).ready(function(){
+    $("#NgayDiemDanh").datepicker({
+        beforeShowDay: $.datepicker.LichHocGiaoLy
+    });
+});
+$('form').submit(function () {
+    if ($("#NgayDiemDanh").val() == '') {
+        alert('Vui lòng nhập ngày điểm danh.');
+        return false;
+    }
+});
+</script>
+{% endblock %}

@@ -20,9 +20,9 @@
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                     <h1 class="h3 mb-2 text-gray-800">Thông tin thiếu nhi lớp {{currentChiaLop.DanhMucLop.TenLop}} năm học {{currentChiaLop.DanhMucNienKhoa.NamBatDau}} - {{currentChiaLop.DanhMucNienKhoa.NamKetThuc}}</h1>
-                     <a href="{% url 'VanHanhNamHoc:exportthieunhi' currentChiaLop.id_ChiaLop %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                     <a href="{% url 'VanHanhNamHoc:exportthieunhi' currentChiaLop.id_ChiaLop %}" class="d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                             class="fas fa-download fa-sm text-white-50"></i> Xuất ra file excel </a>
-                    <a href="{% url 'VanHanhNamHoc:createthieunhi' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                    <a href="{% url 'VanHanhNamHoc:createthieunhi' %}" class="d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                             class="fas fa-plus fa-sm text-white-50"></i> Thêm mới</a>
                     </div>
                     <p class="mb-4">Trang để xem, sửa, xóa và thêm thiếu nhi.</p>
@@ -46,7 +46,7 @@
                                         </option>
                                     {% endfor %}
                                 </select>
-                                <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" value="">
+                                <button type="submit" class="d-sm-inline-block btn btn-sm btn-primary shadow-sm" value="">
                                     <i class="fas fa-upload fa-sm text-white-50"></i> Upload dữ liệu từ excel
                                 </button>
                             </form>
