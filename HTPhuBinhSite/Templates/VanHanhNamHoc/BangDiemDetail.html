@@ -1,0 +1,138 @@
+{% extends 'HomePage/Base.html' %}
+{% load static %}
+{% block cssblock %}<!-- Custom fonts for this template -->
+    <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this page -->
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+    <!-- Custom styles for this page -->
+    <link href="{% static 'css/jquery-ui.min.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block contentblock %}
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-2 text-gray-800">Cập nhật điểm số "{{objDiemSo.get_HocKy_display}}" lớp {{currentPhanCong.0.ChiaLop.DanhMucLop.TenLop}} năm học {{currentPhanCong.0.ChiaLop.DanhMucNienKhoa.NamBatDau}} - {{currentPhanCong.0.ChiaLop.DanhMucNienKhoa.NamKetThuc}}</h1>
+                    <a class="d-sm-inline-block btn btn-sm btn-danger shadow-sm"  data-toggle="modal" data-target="#deleteModal">
+                        <i class="fas fa-trash fa-sm text-white-50"></i> Xóa cột điểm</a>
+                    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="edeleteModalLabel">Bạn muốn xóa cột điểm <b>{{objDiemSo.get_HocKy_display}} - {{objDiemSo.get_LoaiCotDiem_display}}</b> của lớp {{currentPhanCong.0.ChiaLop.DanhMucLop.TenLop}} năm học {{currentPhanCong.0.ChiaLop.DanhMucNienKhoa.NamBatDau}} - {{currentPhanCong.0.ChiaLop.DanhMucNienKhoa.NamKetThuc}}?</h5>
+                                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">Chọn "Xác nhận" bên dưới nếu bạn muốn xóa cột điểm.</div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Hủy bỏ</button>
+                                    <a class="btn btn-primary" href="{% url 'VanHanhNamHoc:deletecotdiem' id_CotDiem=objDiemSo.id_CotDiem %}">Xác nhận</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a id="InputForm" class="d-sm-inline-block btn btn-sm btn-success shadow-sm" >
+                    <i class="fas fa-check fa-sm text-white-50"></i> Lưu lại</a>
+                    </div>
+                    <!-- DataTables Example -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Cập nhật điểm số thiếu nhi</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Tên thánh</th>
+                                            <th>Họ và tên</th>
+                                            <th>{{objDiemSo.get_LoaiCotDiem_display}}</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th></th>
+                                            <th>Tên thánh</th>
+                                            <th>Họ và tên</th>
+                                            <th>{{objDiemSo.get_LoaiCotDiem_display}}</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                    {% for item in list %}
+                                        <tr>
+                                        <form class="allforms" id="InputForm{{item.info.ThieuNhi.id_ThieuNhi}}" action="{% url 'VanHanhNamHoc:updatediemso' id_DiemSo=item.objDiemSo.id_DiemSo %}" method="post">
+                                            {% csrf_token %}
+                                            <td>{{forloop.counter}}
+                                            <input type="submit" hidden value="Lưu lại"/></td>
+                                            <td>{{item.info.ThieuNhi.TenThanh}}</td>
+                                            <td>{{item.info.ThieuNhi.HoTen}}</td>
+                                            <td>
+                                                {{item.form.DiemSo}}
+                                                <div hidden>
+                                                    {{item.form.HocKy}}
+                                                    {{item.form.LoaiCotDiem}}
+                                                </div>
+                                            </td>
+                                        </form>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.container-fluid -->
+
+{% endblock %}
+
+
+
+{% block jsblock %}
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+
+    <!-- Page level plugins -->
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+
+    <script src="{% static 'js/jquery-ui.js' %}"></script>
+<script>
+$(document).ready(function() {
+    $('#InputForm').click(function(){
+        $('.allforms').each(function(){
+            valuesToSend = $(this).serialize();
+            $.ajax($(this).attr('action'),
+                {
+                method: $(this).attr('method'),
+                data: valuesToSend
+                }
+            )
+        });
+        setTimeout(function(){location.replace("{% url 'VanHanhNamHoc:bangdiem' %}")}, 1500);
+    });
+});
+</script>
+{% endblock %}

@@ -3,8 +3,8 @@ from django.views import View
 from django.shortcuts import render, HttpResponse, redirect
 from django.urls import reverse
 from ThietLapNamHocMoi.apps import ThietlapnamhocmoiConfig as VanhanhnamhocConfig
-from ThietLapNamHocMoi.models import ThieuNhi, BangDiem, ChiaLop, PhanCong, DiemDanh
-from .forms import ThieuNhiForm, BangDiemForm, DiemDanhForm
+from ThietLapNamHocMoi.models import ThieuNhi, BangDiem, ChiaLop, PhanCong, DiemDanh, DiemSo
+from .forms import ThieuNhiForm, DiemDanhForm, DiemSoForm
 import pandas, datetime
 from .resources import ThieuNhiResource
 from tablib import Dataset
@@ -151,23 +151,72 @@ class BangDiemView(LoginRequiredMixin, View):
     def get(self, request):
         if request.user.has_perm(VanhanhnamhocConfig.name+'.view_bangdiem') & PhanCong.objects.filter(HuynhTruong=request.user, ChiaLop__DanhMucNienKhoa__Is_Active=1).exists():
             currentPhanCong = PhanCong.objects.filter(HuynhTruong=request.user,ChiaLop__DanhMucNienKhoa__Is_Active=1).select_related('ChiaLop__DanhMucNienKhoa', 'ChiaLop__DanhMucLop')
+            form = DiemSoForm()
+            list = DiemSo.objects.filter(BangDiem__ChiaLop__DanhMucNienKhoa__Is_Active__gte=0
+                                          , BangDiem__Is_Active__gte=0
+                                          , BangDiem__ChiaLop__DanhSachHuynhTruong__id_HuynhTruong=request.user.id_HuynhTruong)\
+                .order_by('-HocKy', 'LoaiCotDiem', 'id_CotDiem').values('BangDiem__ThieuNhi__id_ThieuNhi', 'BangDiem__ThieuNhi__TenThanh', 'BangDiem__ThieuNhi__HoTen', 'HocKy', 'LoaiCotDiem', 'DiemSo', 'id_CotDiem')
+            if list.exists():
+                data = pandas.DataFrame(list)
+                data = data.rename(columns={'BangDiem__ThieuNhi__id_ThieuNhi': 'Id Thiếu Nhi', 'BangDiem__ThieuNhi__TenThanh': 'Tên Thánh', 'BangDiem__ThieuNhi__HoTen': 'Họ và tên'})
+                data['Học kỳ'] = ""
+                data['Loại kiểm tra'] = ""
+                data['Điểm số'] = ""
+                for index, row in data.iterrows():
+                    data.at[index, 'Học kỳ'] = dict(DiemSo._meta.get_field('HocKy').flatchoices).get(row['HocKy'],row['HocKy'])
+                    data.at[index, 'Loại kiểm tra'] = '<a class="LoaiCotDiem' + str(row['LoaiCotDiem']) + '" href="' + reverse('VanHanhNamHoc:editcotdiem', kwargs={'id_CotDiem':row['id_CotDiem']}) + '">' + dict(DiemSo._meta.get_field('LoaiCotDiem').flatchoices).get(row['LoaiCotDiem'],row['LoaiCotDiem']) + '</a>'
+                    if not(pandas.isnull(row['DiemSo'])):
+                        data.at[index, 'Điểm số'] = row['DiemSo']
+
+                pivot = pandas.pivot_table(data, index=['Id Thiếu Nhi', 'Tên Thánh', 'Họ và tên'], columns=['Học kỳ', 'Loại kiểm tra'], values='Điểm số', aggfunc='min', fill_value='').reset_index(level=0, drop=True)
+                return render(request, 'VanHanhNamHoc/BangDiemList.html', {"list": pivot.to_html(classes='table table-bordered',escape=False), 'currentPhanCong': currentPhanCong, 'form': form})
+            return render(request, 'VanHanhNamHoc/BangDiemList.html', {"list": None, 'currentPhanCong': currentPhanCong, 'form': form})
+        return render(request, 'HomePage/404.html')
+
+    def addCotDiem(request):
+        if request.user.has_perm(VanhanhnamhocConfig.name + '.add_bangdiem'):
+            form = DiemSoForm(request.POST, request=request)
+            listBangDiem = BangDiem.objects.filter(ChiaLop__DanhMucNienKhoa__Is_Active__gte=0, Is_Active__gte=0, ChiaLop__DanhSachHuynhTruong__id_HuynhTruong=request.user.id_HuynhTruong)
+            id_CotDiem = 0
+            for index, item in enumerate(listBangDiem):
+                objDiemSo = DiemSo.objects.create(BangDiem=item, id_CotDiem=id_CotDiem, HocKy=form['HocKy'].value(), LoaiCotDiem=form['LoaiCotDiem'].value())
+                if index == 0:
+                    id_CotDiem = objDiemSo.pk
+                objDiemSo.id_CotDiem = id_CotDiem
+                objDiemSo.save()
+            return redirect(reverse('VanHanhNamHoc:bangdiem'))
+        else:
+            return render(request, 'HomePage/404.html')
+
+    def editCotDiem(request, id_CotDiem):
+        if request.user.has_perm(VanhanhnamhocConfig.name + '.change_bangdiem'):
+            currentPhanCong = PhanCong.objects.filter(HuynhTruong=request.user,ChiaLop__DanhMucNienKhoa__Is_Active=1).select_related('ChiaLop__DanhMucNienKhoa', 'ChiaLop__DanhMucLop')
             listinfo = BangDiem.objects.filter(ChiaLop__DanhMucNienKhoa__Is_Active__gte=0, Is_Active__gte=0, ChiaLop__DanhSachHuynhTruong__id_HuynhTruong=request.user.id_HuynhTruong).select_related("ThieuNhi")
             list = []
             for item in listinfo:
-                list.append({'info': item ,'form': BangDiemForm(instance=item, request=request)})
-            return render(request, 'VanHanhNamHoc/BangDiemList.html', {"list": list, 'currentPhanCong': currentPhanCong})
+                objDiemSo = DiemSo.objects.get(BangDiem__pk=item.pk, id_CotDiem=id_CotDiem)
+                list.append({'info': item, 'form': DiemSoForm(instance=objDiemSo, request=request), 'objDiemSo': objDiemSo})
+            return render(request, 'VanHanhNamHoc/BangDiemDetail.html', {'list': list, 'currentPhanCong': currentPhanCong, 'objDiemSo': objDiemSo})
         return render(request, 'HomePage/404.html')
 
-    def update1row(request, id_BangDiem):
-        objBangDiem = BangDiem.objects.get(pk=id_BangDiem)
-        if request.user.has_perm(VanhanhnamhocConfig.name + '.change_bangdiem') & Check_HuynhTruong_quan_ly_ThieuNhi(id_ThieuNhi=objBangDiem.ThieuNhi.id_ThieuNhi, id_HuynhTruong=request.user.id_HuynhTruong):
-            form = BangDiemForm(request.POST, instance=objBangDiem, request=request)
+    def updateDiemSo(request, id_DiemSo):
+        id_ThieuNhi = DiemSo.objects.get(pk=id_DiemSo).BangDiem.ThieuNhi.id_ThieuNhi
+        if request.user.has_perm(VanhanhnamhocConfig.name + '.change_bangdiem') & Check_HuynhTruong_quan_ly_ThieuNhi(id_ThieuNhi=id_ThieuNhi, id_HuynhTruong=request.user.id_HuynhTruong):
+            objDiemSo = DiemSo.objects.get(pk=id_DiemSo)
+            form = DiemSoForm(request.POST, instance=objDiemSo, request=request)
             if request.method == 'POST':
+                print(form.errors)
                 if form.is_valid():
                     form.save()
             return redirect(reverse('VanHanhNamHoc:bangdiem'))
         else:
             return render(request, 'HomePage/404.html')
+
+    def deleteCotDiem(request, id_CotDiem):
+        if request.user.has_perm(VanhanhnamhocConfig.name + '.delete_bangdiem'):
+            DiemSo.objects.filter(id_CotDiem=id_CotDiem).delete()
+            return redirect(reverse('VanHanhNamHoc:bangdiem'))
+        return render(request, 'HomePage/404.html')
 
 class DiemDanhView(LoginRequiredMixin, View):
     login_url = '/logout/'
