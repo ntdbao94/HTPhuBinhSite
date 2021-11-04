@@ -28,7 +28,10 @@ urlpatterns = [
     path('exportThieuNhi/<int:id_ChiaLop>', views.ThieuNhiView.export, name="exportthieunhi"),
 
     path('viewBangDiem/', views.BangDiemView.as_view(), name="bangdiem"),
-    path('detailBangDiem/<int:id_BangDiem>', views.BangDiemView.update1row, name="updatebangdiem"),
+    path('addCotDiem/', views.BangDiemView.addCotDiem, name="addcotdiem"),
+    path('detailCotDiem/<int:id_CotDiem>', views.BangDiemView.editCotDiem, name="editcotdiem"),
+    path('deleteCotDiem/<int:id_CotDiem>', views.BangDiemView.deleteCotDiem, name="deletecotdiem"),
+    path('updateDiemSo/<int:id_DiemSo>', views.BangDiemView.updateDiemSo, name="updatediemso"),
 
     path('viewDiemDanh/', views.DiemDanhView.as_view(), name="diemdanh"),
     path('detailDiemDanh/', views.DiemDanhView.create, name="creatediemdanh"),

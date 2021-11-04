@@ -117,16 +117,18 @@ class BangDiem(BaseModel):
     id_BangDiem = models.AutoField(primary_key=True)
     ChiaLop = models.ForeignKey(ChiaLop, on_delete=models.CASCADE, related_name='ChiaLop_BangDiem')
     ThieuNhi = models.ForeignKey(ThieuNhi, on_delete=models.CASCADE, related_name='ThieuNhi')
-    DiemKTM_HK1 = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
-    DiemKTV_HK1 = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
-    DiemKT15_HK1 = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
-    DiemKT1T_HK1 = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
-    DiemThi_HK1 = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
-    DiemKTM_HK2 = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
-    DiemKTV_HK2 = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
-    DiemKT15_HK2 = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
-    DiemKT1T_HK2 = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
-    DiemThi_HK2 = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
+
+class DiemSo(BaseModel):
+    class Meta:
+        db_table = "table_DiemSo"
+
+    id_DiemSo = models.AutoField(primary_key=True)
+    id_CotDiem = models.IntegerField() #(id_cotdiem = min(id_diemso) của các ô điểm trong cùng 1 cột)
+    BangDiem = models.ForeignKey(BangDiem, on_delete=models.CASCADE, related_name='BangDiem_CotDiem')
+    HocKy = models.IntegerField(choices=[(1, 'Học kỳ I'), (2, 'Học kỳ II')], default=1, blank=False, null=False)
+    LoaiCotDiem = models.IntegerField(choices=[(0, 'Hệ số 01'), (1, 'KT 15\''), (2, 'KT 1 Tiết'), (3, 'Thi Học kỳ')])
+    DiemSo = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
+    Is_KetSo = models.IntegerField(choices=[(1, 'Đã kết sổ'), (0, 'Chưa kết sổ')], default=0)
 
 
 class DiemDanh(BaseModel):

@@ -20,7 +20,46 @@
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                     <h1 class="h3 mb-2 text-gray-800">Bảng điểm lớp {{currentPhanCong.0.ChiaLop.DanhMucLop.TenLop}} năm học {{currentPhanCong.0.ChiaLop.DanhMucNienKhoa.NamBatDau}} - {{currentPhanCong.0.ChiaLop.DanhMucNienKhoa.NamKetThuc}}</h1>
-                    <input type="submit" id="InputForm" class="d-sm-inline-block btn btn-sm btn-primary shadow-sm" value="Lưu lại"/>
+                    <a class="d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#deleteModal"><i
+                            class="fas fa-plus fa-sm text-white-50"></i> Thêm cột điểm</a>
+                    <!-- Delete Modal-->
+                    <form id="CotDiemForm" action="{% url 'VanHanhNamHoc:addcotdiem' %}" method="post">
+                                            {% csrf_token %}
+                        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Thêm cột điểm cho lớp {{currentPhanCong.0.ChiaLop.DanhMucLop.TenLop}} năm học {{currentPhanCong.0.ChiaLop.DanhMucNienKhoa.NamBatDau}} - {{currentPhanCong.0.ChiaLop.DanhMucNienKhoa.NamKetThuc}}</h5>
+                                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">×</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-group row">
+                                            <div class="col-sm-6">
+                                                Học kỳ:
+                                                {{form.HocKy}}
+                                                {% for err in form.HocKy.errors %}
+                                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                                {% endfor %}
+                                            </div>
+                                            <div class="col-sm-6">
+                                                Loại:
+                                                {{form.LoaiCotDiem}}
+                                                {% for err in form.LoaiCotDiem.errors %}
+                                                    <p class="mb-4 text-danger">{{err}}.</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Hủy</button>
+                                        <input type="submit" class="btn btn-primary" value="Thêm cột điểm"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                     </div>
                     {% if list is None %}
                     <p class="mb-4 text-danger">Không có dữ liệu.</p>
@@ -32,72 +71,13 @@
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>Tên thánh</th>
-                                            <th>Họ và tên</th>
-                                            <th>Điểm KTM HK1</th>
-                                            <th>Điểm KTV HK1</th>
-                                            <th>Điểm KT15' HK1</th>
-                                            <th>Điểm KT 1 Tiết HK1</th>
-                                            <th>Ngày Thi HK1</th>
-                                            <th>Điểm KTM HK2</th>
-                                            <th>Điểm KTV HK2</th>
-                                            <th>Điểm KT15' HK2</th>
-                                            <th>Điểm KT 1 Tiết HK2</th>
-                                            <th>Ngày Thi HK2</th>
-                                        </tr>
-                                    </thead>
-                                    <tfoot>
-                                        <tr>
-                                            <th></th>
-                                            <th>Tên thánh</th>
-                                            <th>Họ và tên</th>
-                                            <th>Điểm KTM HK1</th>
-                                            <th>Điểm KTV HK1</th>
-                                            <th>Điểm KT15' HK1</th>
-                                            <th>Điểm KT 1 Tiết HK1</th>
-                                            <th>Điểm Thi HK1</th>
-                                            <th>Điểm KTM HK2</th>
-                                            <th>Điểm KTV HK2</th>
-                                            <th>Điểm KT15' HK2</th>
-                                            <th>Điểm KT 1 Tiết HK2</th>
-                                            <th>Điểm Thi HK2</th>
-                                        </tr>
-                                    </tfoot>
-                                    <tbody>
-                                    {% for item in list %}
-                                        <tr>
-                                        <form class="allforms" id="InputForm{{item.info.id_BangDiem}}" action="{% url 'VanHanhNamHoc:updatebangdiem' item.info.id_BangDiem %}" method="post">
-                                            {% csrf_token %}
-                                            <td>{{forloop.counter}}
-                                            <input type="submit" hidden value="Lưu lại"/></td>
-                                            <td>{{item.info.ThieuNhi.TenThanh}}</td>
-                                            <td>{{item.info.ThieuNhi.HoTen}}</td>
-                                            <td>{{item.form.DiemKTM_HK1}}</td>
-                                            <td>{{item.form.DiemKTV_HK1}}</td>
-                                            <td>{{item.form.DiemKT15_HK1}}</td>
-                                            <td>{{item.form.DiemKT1T_HK1}}</td>
-                                            <td>{{item.form.DiemThi_HK1}}</td>
-                                            <td>{{item.form.DiemKTM_HK2}}</td>
-                                            <td>{{item.form.DiemKTV_HK2}}</td>
-                                            <td>{{item.form.DiemKT15_HK2}}</td>
-                                            <td>{{item.form.DiemKT1T_HK2}}</td>
-                                            <td>{{item.form.DiemThi_HK2}}</td>
-                                        </form>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
+                                {{list|safe}}
                             </div>
                         </div>
                     </div>
                     {% endif %}
                 </div>
                 <!-- /.container-fluid -->
-
 {% endblock %}
 
 
@@ -120,21 +100,4 @@
 
     <!-- Page level custom scripts -->
     <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
-<script>
-$(document).ready(function() {
-    $('#InputForm').click(function(){
-        $('.allforms').each(function(){
-            valuesToSend = $(this).serialize();
-            $.ajax($(this).attr('action'),
-                {
-                method: $(this).attr('method'),
-                data: valuesToSend
-                }
-            )
-        });
-        setTimeout(location.reload.bind(location), 1000);
-
-    });
-});
-</script>
 {% endblock %}

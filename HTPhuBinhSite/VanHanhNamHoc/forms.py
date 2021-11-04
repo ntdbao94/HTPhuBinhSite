@@ -1,5 +1,5 @@
 from django import forms
-from ThietLapNamHocMoi.models import ThieuNhi, BangDiem, DiemDanh
+from ThietLapNamHocMoi.models import ThieuNhi, BangDiem, DiemDanh, DiemSo
 from django.contrib import messages
 
 class ThieuNhiForm(forms.ModelForm):
@@ -40,29 +40,6 @@ class ThieuNhiForm(forms.ModelForm):
             messages.info(self.request, 'Thiếu nhi: ' + self.cleaned_data['TenThanh'] + ' ' + self.cleaned_data['HoTen'] + ' đã nghỉ học trước đó, vui lòng liên hệ BQT để kiểm tra tình hình học tập.')
             self.add_error('HoTen', '')
 
-class BangDiemForm(forms.ModelForm):
-    class Meta:
-        model = BangDiem
-        fields = ['DiemKTM_HK1', 'DiemKTV_HK1', 'DiemKT15_HK1', 'DiemKT1T_HK1', 'DiemThi_HK1', 'DiemKTM_HK2', 'DiemKTV_HK2', 'DiemKT15_HK2', 'DiemKT1T_HK2', 'DiemThi_HK2']
-
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
-        super(BangDiemForm, self).__init__(*args, **kwargs)
-        self.fields['DiemKTM_HK1'].widget.attrs.update({'min': '0', 'min': '10'})
-        self.fields['DiemKTV_HK1'].widget.attrs.update({'min': '0', 'min': '10'})
-        self.fields['DiemKT15_HK1'].widget.attrs.update({'min': '0', 'min': '10'})
-        self.fields['DiemKT1T_HK1'].widget.attrs.update({'min': '0', 'min': '10'})
-        self.fields['DiemThi_HK1'].widget.attrs.update({'min': '0', 'min': '10'})
-        self.fields['DiemKTM_HK2'].widget.attrs.update({'min': '0', 'min': '10'})
-        self.fields['DiemKTV_HK2'].widget.attrs.update({'min': '0', 'min': '10'})
-        self.fields['DiemKT15_HK2'].widget.attrs.update({'min': '0', 'min': '10'})
-        self.fields['DiemKT1T_HK2'].widget.attrs.update({'min': '0', 'min': '10'})
-        self.fields['DiemThi_HK2'].widget.attrs.update({'min': '0', 'min': '10'})
-
-    def clean(self):
-        super().clean()
-        self.cleaned_data['Updated_by'] = self.request.user
-
 
 class DiemDanhForm(forms.ModelForm):
     class Meta:
@@ -73,6 +50,21 @@ class DiemDanhForm(forms.ModelForm):
         self.request = kwargs.pop('request', None)
         super(DiemDanhForm, self).__init__(*args, **kwargs)
         self.fields['NgayDiemDanh'].widget.attrs.update({'hidden': 'hidden'})
+
+    def clean(self):
+        super().clean()
+        self.cleaned_data['Updated_by'] = self.request.user
+
+
+class DiemSoForm(forms.ModelForm):
+    class Meta:
+        model = DiemSo
+        fields = ['HocKy', 'LoaiCotDiem', 'DiemSo']
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(DiemSoForm, self).__init__(*args, **kwargs)
+        self.fields['DiemSo'].widget.attrs.update({'class': 'form-control form-control-sm'})
 
     def clean(self):
         super().clean()
